@@ -631,7 +631,8 @@ to{transform:rotate(360deg);}}
     <li><a href="#mise">Mise</a></li>
     <li><a href="#vrtulnik">Vrtulník</a></li>
     <li><a href="#historie">Historie</a></li>
-    <li><a href="#zajimavosti">Zajímavosti</a>
+    <li><a href="#mapa-lzs">Mapa LZS</a>
+          <a href="#zajimavosti">Zajímavosti</a>
           <a href="#pokryti">Pokrytí</a></li>
     <li><a href="#kontakt">Kontakt</a></li>
   </ul>
@@ -960,6 +961,16 @@ function toggleMenu() {
 
 
 
+
+<!-- MAPA LZS ČR -->
+<section id="mapa-lzs" style="background:var(--dark);border-top:1px solid rgba(255,255,255,.07);">
+<div class="wrap">
+  <div class="ey">Síť LZS</div>
+  <h2 class="stitle">Kryštofové v ČR</h2>
+  <p class="sbody" style="margin-bottom:2rem;">Česká republika provozuje 10 stanic letecké záchranné služby. Kryštof 07 z Líní je jedinou armádní stanicí s plnou IFR způsobilostí.</p>
+  <div id="lzs-map-cr" style="height:480px;border:1px solid rgba(255,255,255,.07);"></div>
+</div>
+</section>
 <!-- ZAJÍMAVOSTI -->
 <section id="zajimavosti" style="background:var(--dark2);border-top:1px solid rgba(255,255,255,.07);">
 <div class="wrap">
@@ -1451,6 +1462,68 @@ function tryAutoplay() {
 
 document.addEventListener("scroll", tryAutoplay, {once: true});
 document.addEventListener("click", tryAutoplay, {once: true});
+</script>
+
+<script>
+window.addEventListener("load", function() {
+  if (typeof L === "undefined") return;
+
+  var mapCR = L.map("lzs-map-cr", {
+    center: [49.8, 15.5],
+    zoom: 7,
+    zoomControl: true,
+    scrollWheelZoom: false,
+    attributionControl: false
+  });
+
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+    maxZoom: 12
+  }).addTo(mapCR);
+
+  // All active LZS stations in CZ
+  var stations = [
+    { name: "Kryštof 01", city: "Praha – Ruzyně", lat: 50.1008, lon: 14.2600, army: false, provoz: "24/7", info: "Policie ČR · EC 135 · 24/7" },
+    { name: "Kryštof 04", city: "Brno – Tuřany", lat: 49.1513, lon: 16.6944, army: false, provoz: "24/7", info: "DSA a.s. · EC 135 · 24/7" },
+    { name: "Kryštof 05", city: "Ostrava – Mošnov", lat: 49.6958, lon: 18.1111, army: false, provoz: "24/7", info: "Helikopter Air Transport · EC 135 · 24/7" },
+    { name: "Kryštof 06", city: "Hradec Králové", lat: 50.2533, lon: 15.8450, army: false, provoz: "24/7", info: "DSA · EC 135 · 24/7" },
+    { name: "Kryštof 07", city: "Plzeň – Líně · LKLN", lat: 49.6753, lon: 13.2753, army: true, provoz: "24/7", info: "Armáda ČR · W-3A Sokol · 24/7 · IFR" },
+    { name: "Kryštof 09", city: "Olomouc", lat: 49.5879, lon: 17.2108, army: false, provoz: "24/7", info: "Air-Transport Europe · EC 135 · 24/7" },
+    { name: "Kryštof 12", city: "Jihlava", lat: 49.3961, lon: 15.5911, army: false, provoz: "24/7", info: "Helikopter Air Transport · Bell 427 · 24/7" },
+    { name: "Kryštof 13", city: "České Budějovice – Planá", lat: 48.9465, lon: 14.4278, army: false, provoz: "24/7", info: "DSA · Bell 427 · 24/7" },
+    { name: "Kryštof 15", city: "Ústí nad Labem", lat: 50.6611, lon: 14.0528, army: false, provoz: "denní", info: "DSA · EC 135 · denní provoz" },
+    { name: "Kryštof 18", city: "Liberec", lat: 50.7671, lon: 15.0194, army: false, provoz: "denní", info: "DSA · EC 135 · denní provoz" },
+  ];
+
+  stations.forEach(function(s) {
+    var isK07 = s.army;
+    var color = isK07 ? "#D42B2B" : "rgba(180,180,160,0.9)";
+    var size = isK07 ? 32 : 22;
+    var glow = isK07 ? "filter:drop-shadow(0 0 6px rgba(212,43,43,0.9));" : "";
+
+    var icon = L.divIcon({
+      html: "<span style=\"font-size:" + size + "px;line-height:1;" + glow + "font-family:Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif;\">🚁</span>",
+      iconSize: [size, size],
+      iconAnchor: [size/2, size/2],
+      className: ""
+    });
+
+    L.marker([s.lat, s.lon], { icon: icon, zIndexOffset: isK07 ? 1000 : 0 })
+      .addTo(mapCR)
+      .bindPopup(
+        "<div style=\"font-family:Barlow Condensed,sans-serif;min-width:160px;\">" +
+        "<b style=\"color:" + (isK07 ? "#D42B2B" : "#fff") + ";font-size:14px;letter-spacing:1px;\">" + s.name + "</b><br>" +
+        "<span style=\"color:#aaa;font-size:12px;\">" + s.city + "<br>" + s.info + "</span></div>"
+      );
+
+    // Label
+    L.marker([s.lat, s.lon], {
+      icon: L.divIcon({
+        html: "<div style=\"color:" + (isK07 ? "#D42B2B" : "rgba(220,215,200,0.7)") + ";font-family:Barlow Condensed,sans-serif;font-size:10px;font-weight:700;white-space:nowrap;text-shadow:0 1px 3px #000;margin-top:14px;margin-left:4px;\">" + s.name + "</div>",
+        className: "", iconAnchor: [0, 0]
+      })
+    }).addTo(mapCR);
+  });
+});
 </script>
 </body>
 </html>
