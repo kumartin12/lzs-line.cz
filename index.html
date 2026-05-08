@@ -490,6 +490,54 @@ to{transform:rotate(360deg);}}
 }
 .sound-btn.muted .sound-bars { opacity:0.25; }
 .sound-btn.muted .bar { animation:none; }
+
+/* Hamburger menu */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  padding: 4px;
+  z-index: 1001;
+}
+.hamburger span {
+  width: 24px;
+  height: 2px;
+  background: var(--white);
+  transition: all 0.3s ease;
+  display: block;
+}
+.hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+.mobile-menu {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(13,14,16,0.97);
+  z-index: 1000;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+}
+.mobile-menu.open { display: flex; }
+.mobile-menu a {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.2rem;
+  letter-spacing: .1em;
+  color: var(--white);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.mobile-menu a:hover { color: var(--red); }
+
+@media(max-width:960px) {
+  .hamburger { display: flex; }
+  .nav-links { display: none; }
+}
 </style>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -516,7 +564,26 @@ to{transform:rotate(360deg);}}
           <a href="#pokryti">Pokrytí</a></li>
     <li><a href="#kontakt">Kontakt</a></li>
   </ul>
+  <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
 </nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#o-nas" onclick="toggleMenu()">O nás</a>
+  <a href="#mise" onclick="toggleMenu()">Mise</a>
+  <a href="#vrtulnik" onclick="toggleMenu()">Vrtulník</a>
+  <a href="#historie" onclick="toggleMenu()">Historie</a>
+  <a href="#zajimavosti" onclick="toggleMenu()">Zajímavosti</a>
+  <a href="#pokryti" onclick="toggleMenu()">Pokrytí</a>
+  <a href="#kontakt" onclick="toggleMenu()">Kontakt</a>
+</div>
+<script>
+function toggleMenu() {
+  document.getElementById("hamburger").classList.toggle("open");
+  document.getElementById("mobileMenu").classList.toggle("open");
+  document.body.style.overflow = document.getElementById("mobileMenu").classList.contains("open") ? "hidden" : "";
+}
+</script>
 
 <!-- HERO -->
 <div class="hero">
