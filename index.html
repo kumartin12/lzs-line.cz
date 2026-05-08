@@ -1497,65 +1497,61 @@ window.addEventListener("load", function() {
     maxZoom: 12
   }).addTo(mapCR);
 
-  // All active LZS stations in CZ
   var stations = [
-    { name: "Kryštof 01", city: "Praha – Ruzyně", lat: 50.1008, lon: 14.2600, army: false, provoz: "24/7", info: "Policie ČR · EC 135 · 24/7 · NVG noční lety" },
-    { name: "Kryštof 04", city: "Brno – Tuřany", lat: 49.1513, lon: 16.6944, army: false, provoz: "24/7", info: "DSA a.s. · EC 135 · 24/7" },
-    { name: "Kryštof 05", city: "Ostrava – Mošnov", lat: 49.6958, lon: 18.1111, army: false, provoz: "24/7", info: "Helikopter Air Transport · EC 135 · 24/7" },
-    { name: "Kryštof 06", city: "Hradec Králové", lat: 50.2533, lon: 15.8450, army: false, provoz: "24/7", info: "DSA · EC 135 · 24/7" },
-    { name: "Kryštof 07", city: "Plzeň – Líně · LKLN", lat: 49.6753, lon: 13.2753, army: true, provoz: "24/7", info: "Armáda ČR · W-3A Sokol · 24/7 · IFR" },
-    { name: "Kryštof 09", city: "Olomouc", lat: 49.5879, lon: 17.2108, army: false, provoz: "24/7", info: "Air-Transport Europe · EC 135 · 24/7" },
-    { name: "Kryštof 12", city: "Jihlava", lat: 49.3961, lon: 15.5911, army: false, provoz: "24/7", info: "Helikopter Air Transport · Bell 427 · 24/7" },
-    { name: "Kryštof 13", city: "České Budějovice – Planá", lat: 48.9465, lon: 14.4278, army: false, provoz: "24/7", info: "DSA · Bell 427 · 24/7" },
-    { name: "Kryštof 15", city: "Ústí nad Labem", lat: 50.6611, lon: 14.0528, army: false, provoz: "denní", info: "DSA · EC 135 · denní provoz" },
-    { name: "Kryštof 18", city: "Liberec", lat: 50.7671, lon: 15.0194, army: false, provoz: "denní", info: "DSA · EC 135 · denní provoz" },
+    { name: "Kryštof 01", city: "Praha – Ruzyně", lat: 50.1008, lon: 14.2600, army: false, provoz: "24/7", operator: "POLICIE ČR", nvg: true, vrtulnik: "EC 135" },
+    { name: "Kryštof 04", city: "Brno – Tuřany", lat: 49.1513, lon: 16.6944, army: false, provoz: "24/7", operator: "DSA", nvg: false, vrtulnik: "EC 135" },
+    { name: "Kryštof 05", city: "Ostrava – Mošnov", lat: 49.6958, lon: 18.1111, army: false, provoz: "24/7", operator: "ATE", nvg: false, vrtulnik: "EC 135" },
+    { name: "Kryštof 06", city: "Hradec Králové", lat: 50.2533, lon: 15.8450, army: false, provoz: "24/7", operator: "DSA", nvg: false, vrtulnik: "EC 135" },
+    { name: "Kryštof 07", city: "Plzeň – Líně · LKLN", lat: 49.6753, lon: 13.2753, army: true, provoz: "24/7", operator: "ARMÁDA ČR", nvg: false, vrtulnik: "W-3A Sokol" },
+    { name: "Kryštof 09", city: "Olomouc", lat: 49.5879, lon: 17.2108, army: false, provoz: "24/7", operator: "ATE", nvg: false, vrtulnik: "EC 135" },
+    { name: "Kryštof 12", city: "Jihlava", lat: 49.3961, lon: 15.5911, army: false, provoz: "24/7", operator: "DSA", nvg: false, vrtulnik: "Bell 427" },
+    { name: "Kryštof 13", city: "České Budějovice", lat: 48.9465, lon: 14.4278, army: false, provoz: "24/7", operator: "DSA", nvg: false, vrtulnik: "Bell 427" },
+    { name: "Kryštof 15", city: "Ústí nad Labem", lat: 50.6611, lon: 14.0528, army: false, provoz: "denní", operator: "DSA", nvg: false, vrtulnik: "EC 135" },
+    { name: "Kryštof 18", city: "Liberec", lat: 50.7671, lon: 15.0194, army: false, provoz: "denní", operator: "DSA", nvg: false, vrtulnik: "EC 135" }
   ];
+
+  var badgeColors = {
+    "ARMÁDA ČR": { bg: "#2a1a1a", color: "#e05555" },
+    "POLICIE ČR": { bg: "#1a1f35", color: "#7090d0" },
+    "DSA":        { bg: "#1a2535", color: "#5090d0" },
+    "ATE":        { bg: "#1a2a1a", color: "#5cb85c" }
+  };
+
+  function makeBadge(text, bg, color) {
+    return '<span style="background:' + bg + ';color:' + color + ';font-size:12px;font-weight:700;padding:3px 9px;border-radius:3px;letter-spacing:.06em;margin-right:4px;">' + text + '</span>';
+  }
 
   stations.forEach(function(s) {
     var isK07 = s.army;
-    var color = isK07 ? "#D42B2B" : "rgba(180,180,160,0.9)";
-    var size = isK07 ? 32 : 22;
+    var size = isK07 ? 38 : 28;
     var glow = isK07 ? "filter:drop-shadow(0 0 6px rgba(212,43,43,0.9));" : "";
 
     var icon = L.divIcon({
-      html: "<span style=\"font-size:" + size + "px;line-height:1;" + glow + "font-family:Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif;\">🚁</span>",
+      html: '<span style="font-size:' + size + 'px;line-height:1;' + glow + 'font-family:Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif;">🚁</span>',
       iconSize: [size, size],
       iconAnchor: [size/2, size/2],
       className: ""
     });
 
+    var bc = badgeColors[s.operator] || { bg: "#222", color: "#aaa" };
+    var badges = makeBadge(s.operator, bc.bg, bc.color);
+    if (isK07) badges += makeBadge("IFR", "#2a1a1a", "#D42B2B");
+    if (s.nvg) badges += makeBadge("NVG", "#222", "#888");
+
+    var popupHtml = '<div style="font-family:Barlow Condensed,sans-serif;min-width:200px;padding:4px 0;">' +
+      '<div style="font-size:18px;font-weight:700;color:' + (isK07 ? "#D42B2B" : "#fff") + ';letter-spacing:.05em;margin-bottom:6px;">' + s.name + '</div>' +
+      '<div style="font-size:14px;color:#aaa;margin-bottom:10px;">' + s.city + '</div>' +
+      '<div style="margin-bottom:8px;">' + badges + '</div>' +
+      '<div style="font-size:13px;color:#aaa;">' + s.vrtulnik + ' &nbsp;·&nbsp; ' + s.provoz + '</div>' +
+      '</div>';
+
     L.marker([s.lat, s.lon], { icon: icon, zIndexOffset: isK07 ? 1000 : 0 })
       .addTo(mapCR)
-      .bindPopup(function() {
-        var provozovatel = s.info.split(" · ")[0];
-        var badge = "";
-        if (s.army) {
-          badge = "<span style=\"background:#2a1a1a;color:#e05555;font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:.08em;margin-right:4px;\">ARMÁDA ČR</span>" +
-                  "<span style=\"background:#2a1a1a;color:#D42B2B;font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:.08em;\">IFR</span>";
-        } else if (provozovatel.indexOf("Policie") > -1) {
-          badge = "<span style=\"background:#1a1f35;color:#7090d0;font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:.08em;margin-right:4px;\">POLICIE ČR</span>" +
-                  "<span style=\"background:#222;color:#888;font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:.08em;\">NVG</span>";
-        } else if (provozovatel.indexOf("DSA") > -1) {
-          badge = "<span style=\"background:#1a2535;color:#5090d0;font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:.08em;\">DSA a.s.</span>";
-        } else if (provozovatel.indexOf("ATE") > -1 || provozovatel.indexOf("Air-Transport") > -1) {
-          badge = "<span style=\"background:#1a2a1a;color:#5cb85c;font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:.08em;\">ATE</span>";
-        } else if (provozovatel.indexOf("Helikopter") > -1) {
-          badge = "<span style=\"background:#2a2015;color:#d0a040;font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:.08em;\">HELIKOPTER AT</span>";
-        }
-        var vrtulnik = s.info.split(" · ")[1] || "";
-        var provoz = s.provoz === "24/7" ? "24/7" : "denní provoz";
-        return "<div style=\"font-family:Barlow Condensed,sans-serif;min-width:180px;padding:4px 0;\">" +
-          "<div style=\"font-size:15px;font-weight:700;color:" + (s.army ? "#D42B2B" : "#fff") + ";letter-spacing:.05em;margin-bottom:4px;\">" + s.name + "</div>" +
-          "<div style=\"font-size:12px;color:#aaa;margin-bottom:8px;\">" + s.city + "</div>" +
-          "<div style=\"margin-bottom:6px;\">" + badge + "</div>" +
-          "<div style=\"font-size:11px;color:#888;\">" + vrtulnik + " &nbsp;·&nbsp; " + provoz + "</div>" +
-          "</div>";
-      });
+      .bindPopup(popupHtml);
 
-    // Label
     L.marker([s.lat, s.lon], {
       icon: L.divIcon({
-        html: "<div style=\"color:" + (isK07 ? "#D42B2B" : "rgba(220,215,200,0.9)") + ";font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:700;white-space:nowrap;text-shadow:0 1px 4px #000,0 0 8px #000;margin-top:16px;margin-left:4px;\">" + s.name + "</div>",
+        html: '<div style="color:' + (isK07 ? "#D42B2B" : "rgba(220,215,200,0.9)") + ';font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:700;white-space:nowrap;text-shadow:0 1px 4px #000,0 0 8px #000;margin-top:16px;margin-left:4px;">' + s.name + '</div>',
         className: "", iconAnchor: [0, 0]
       })
     }).addTo(mapCR);
