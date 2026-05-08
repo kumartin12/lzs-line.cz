@@ -609,6 +609,23 @@ to{transform:rotate(360deg);}}
   .w-val { font-size: 1.5rem; }
   .wrap { padding: 3rem 1rem; }
 }
+
+.leaflet-popup-content-wrapper {
+  background: rgba(13,14,16,0.95) !important;
+  border: 1px solid rgba(212,43,43,0.3) !important;
+  border-radius: 4px !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.6) !important;
+  color: #fff !important;
+}
+.leaflet-popup-tip {
+  background: rgba(13,14,16,0.95) !important;
+}
+.leaflet-popup-close-button {
+  color: rgba(255,255,255,0.5) !important;
+}
+.leaflet-popup-close-button:hover {
+  color: #fff !important;
+}
 </style>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -1509,11 +1526,31 @@ window.addEventListener("load", function() {
 
     L.marker([s.lat, s.lon], { icon: icon, zIndexOffset: isK07 ? 1000 : 0 })
       .addTo(mapCR)
-      .bindPopup(
-        "<div style=\"font-family:Barlow Condensed,sans-serif;min-width:160px;\">" +
-        "<b style=\"color:" + (isK07 ? "#D42B2B" : "#fff") + ";font-size:14px;letter-spacing:1px;\">" + s.name + "</b><br>" +
-        "<span style=\"color:#aaa;font-size:12px;\">" + s.city + "<br>" + s.info + "</span></div>"
-      );
+      .bindPopup(function() {
+        var provozovatel = s.info.split(" · ")[0];
+        var badge = "";
+        if (s.army) {
+          badge = "<span style=\"background:#2a1a1a;color:#e05555;font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:.08em;margin-right:4px;\">ARMÁDA ČR</span>" +
+                  "<span style=\"background:#2a1a1a;color:#D42B2B;font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:.08em;\">IFR</span>";
+        } else if (provozovatel.indexOf("Policie") > -1) {
+          badge = "<span style=\"background:#1a1f35;color:#7090d0;font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:.08em;margin-right:4px;\">POLICIE ČR</span>" +
+                  "<span style=\"background:#222;color:#888;font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:.08em;\">NVG</span>";
+        } else if (provozovatel.indexOf("DSA") > -1) {
+          badge = "<span style=\"background:#1a2535;color:#5090d0;font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:.08em;\">DSA a.s.</span>";
+        } else if (provozovatel.indexOf("ATE") > -1 || provozovatel.indexOf("Air-Transport") > -1) {
+          badge = "<span style=\"background:#1a2a1a;color:#5cb85c;font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:.08em;\">ATE</span>";
+        } else if (provozovatel.indexOf("Helikopter") > -1) {
+          badge = "<span style=\"background:#2a2015;color:#d0a040;font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:.08em;\">HELIKOPTER AT</span>";
+        }
+        var vrtulnik = s.info.split(" · ")[1] || "";
+        var provoz = s.provoz === "24/7" ? "24/7" : "denní provoz";
+        return "<div style=\"font-family:Barlow Condensed,sans-serif;min-width:180px;padding:4px 0;\">" +
+          "<div style=\"font-size:15px;font-weight:700;color:" + (s.army ? "#D42B2B" : "#fff") + ";letter-spacing:.05em;margin-bottom:4px;\">" + s.name + "</div>" +
+          "<div style=\"font-size:12px;color:#aaa;margin-bottom:8px;\">" + s.city + "</div>" +
+          "<div style=\"margin-bottom:6px;\">" + badge + "</div>" +
+          "<div style=\"font-size:11px;color:#888;\">" + vrtulnik + " &nbsp;·&nbsp; " + provoz + "</div>" +
+          "</div>";
+      });
 
     // Label
     L.marker([s.lat, s.lon], {
