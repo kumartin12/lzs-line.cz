@@ -566,6 +566,31 @@ footer{background:#090a0b;border-top:1px solid rgba(255,255,255,.05);padding:1.5
 .leaflet-popup-close-button:hover {
   color: #fff !important;
 }
+/* ===== v2 ===== */
+/* menu follows the page and turns solid once you scroll */
+nav{position:fixed;transition:background .25s,padding .25s,box-shadow .25s;}
+nav.solid{background:rgba(13,14,16,.94);padding-top:.7rem;padding-bottom:.7rem;box-shadow:0 1px 0 rgba(255,255,255,.07);backdrop-filter:blur(10px);}
+.nav-links a{font-size:.95rem;letter-spacing:.14em;color:#c3c9d2;}
+.nav-links a.on{color:var(--red2);}
+.nav-logo-sub{font-size:.75rem;}
+.ey{font-size:.85rem !important;}
+.hstat-lbl,.sc-lbl{font-size:.9rem;}
+.prog{position:fixed;left:0;top:0;height:3px;width:100%;background:var(--red2);transform:scaleX(0);transform-origin:left;z-index:1001;pointer-events:none;}
+/* hero photo caption: readable plate, clear of the floating button */
+.hero-photo-cap{right:7.5rem !important;font-size:.9rem !important;color:#fff !important;background:rgba(13,14,16,.78);padding:.35rem .8rem;border-left:3px solid var(--red);}
+/* readiness plate */
+.ready{display:flex;align-items:center;gap:1.1rem;margin-top:2.4rem;padding:1rem 1.3rem;max-width:34rem;background:rgba(13,14,16,.72);border:1px solid rgba(255,255,255,.12);border-left:3px solid var(--red);backdrop-filter:blur(8px);opacity:0;animation:up .9s ease forwards .8s;}
+.ready-dot{width:12px;height:12px;border-radius:50%;background:var(--red2);flex-shrink:0;box-shadow:0 0 0 0 rgba(255,61,61,.7);animation:rdy 2s infinite;}
+@keyframes rdy{70%{box-shadow:0 0 0 12px rgba(255,61,61,0);}100%{box-shadow:0 0 0 0 rgba(255,61,61,0);}}
+.ready-txt{display:flex;flex-direction:column;flex:1;min-width:0;}
+.ready-txt b{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.15rem;letter-spacing:.06em;color:var(--white);text-transform:uppercase;}
+.ready-txt span,.ready-time span{font-size:.9rem;color:var(--gray2);}
+.ready-time{display:flex;flex-direction:column;align-items:flex-end;}
+.ready-time b{font-family:'Bebas Neue',sans-serif;font-size:2rem;line-height:1;letter-spacing:.06em;font-variant-numeric:tabular-nums;color:var(--white);}
+@media(max-width:600px){.ready{flex-wrap:wrap;}.ready-time{align-items:flex-start;}.hero-photo-cap{right:1rem !important;bottom:5rem !important;}}
+@media(prefers-reduced-motion:reduce){.ready-dot{animation:none;}}
+:root{--gray:#828997;}
+.hamburger{min-width:44px;min-height:44px;justify-content:center;}
 </style>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -631,14 +656,10 @@ function toggleMenu() {
     <div class="hero-badge">Letecká záchranná služba · Plzeňský a Karlovarský kraj</div>
     <h1 class="hero-title">Kryštof<span>07</span></h1>
     <p class="hero-sub">Plzeň–Líně · LZS AČR · Nepřetržitý provoz 24/7</p>
-    <div class="hero-stats">
-      <div><div class="hstat-num">1990</div><div class="hstat-lbl">Rok zahájení</div></div>
-      <div class="hstat-div"></div>
-      <div><div class="hstat-num">24/7</div><div class="hstat-lbl">Pohotovost</div></div>
-      <div class="hstat-div"></div>
-      <div><div class="hstat-num">5×</div><div class="hstat-lbl">Posádka</div></div>
-      <div class="hstat-div"></div>
-      <div><div class="hstat-num">70 km</div><div class="hstat-lbl">Akční rádius</div></div>
+    <div class="ready" role="status">
+      <span class="ready-dot" aria-hidden="true"></span>
+      <div class="ready-txt"><b>Stanice je v pohotovosti</b><span id="rdyMode">Vzlet do 3 minut ve dne, do 10 minut v noci</span></div>
+      <div class="ready-time"><b id="rdyClock">--:--:--</b><span>místní čas Plzeň–Líně</span></div>
     </div>
   </div>
   <div class="hero-photo-cap" style="position:absolute;bottom:1.5rem;right:1.5rem;z-index:2;">W-3A Sokol ev. č. 0719 · Czech Air Force · LZS Kryštof 07</div>
@@ -1498,6 +1519,48 @@ window.addEventListener("load", function() {
     }).addTo(mapCR);
   });
 });
+</script>
+<script>
+// v2: menu state, scroll progress, live readiness (day/night from sun position)
+(() => {
+  const nav = document.querySelector('nav');
+  const bar = document.createElement('div'); bar.className = 'prog'; bar.setAttribute('aria-hidden','true'); document.body.prepend(bar);
+  const links = [...document.querySelectorAll('.nav-links a[href^="#"]')];
+  const secs = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  const onScroll = () => {
+    nav.classList.toggle('solid', scrollY > 40);
+    const h = document.documentElement.scrollHeight - innerHeight;
+    bar.style.transform = 'scaleX(' + (h > 0 ? Math.min(1, scrollY / h) : 0) + ')';
+    let cur = null; secs.forEach(sec => { if (sec.getBoundingClientRect().top < innerHeight * .4) cur = sec.id; });
+    links.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + cur));
+  };
+  addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+  // sunrise/sunset for LKLN (49.68 N, 13.27 E), NOAA approximation, minutes UTC
+  const sun = d => {
+    const rad = Math.PI / 180, lat = 49.68, lon = 13.27;
+    const n = Math.floor((d - Date.UTC(d.getUTCFullYear(), 0, 0)) / 864e5);
+    const g = 2 * Math.PI / 365 * (n - 1);
+    const eq = 229.18 * (0.000075 + 0.001868 * Math.cos(g) - 0.032077 * Math.sin(g) - 0.014615 * Math.cos(2 * g) - 0.040849 * Math.sin(2 * g));
+    const dec = 0.006918 - 0.399912 * Math.cos(g) + 0.070257 * Math.sin(g) - 0.006758 * Math.cos(2 * g) + 0.000907 * Math.sin(2 * g);
+    const ha = Math.acos(Math.cos(90.833 * rad) / (Math.cos(lat * rad) * Math.cos(dec)) - Math.tan(lat * rad) * Math.tan(dec)) / rad;
+    return { rise: 720 - 4 * (lon + ha) - eq, set: 720 - 4 * (lon - ha) - eq };
+  };
+  const clock = document.getElementById('rdyClock'), mode = document.getElementById('rdyMode');
+  if (!clock) return;
+  const fmt = new Intl.DateTimeFormat('cs-CZ', { timeZone: 'Europe/Prague', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+  const hm = new Intl.DateTimeFormat('cs-CZ', { timeZone: 'Europe/Prague', hour: '2-digit', minute: '2-digit', hour12: false });
+  const tick = () => {
+    const now = new Date();
+    clock.textContent = fmt.format(now);
+    const m = now.getUTCHours() * 60 + now.getUTCMinutes() + now.getUTCSeconds() / 60, s = sun(now);
+    const day = m >= s.rise && m < s.set;
+    const at = mins => hm.format(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) + mins * 6e4));
+    mode.textContent = day ? 'Je den (slunce zapadá v ' + at(s.set) + ') · vzlet do 3 minut'
+                           : 'Je noc · vzlet do 10 minut';
+  };
+  tick(); setInterval(tick, 1000);
+})();
 </script>
 </body>
 </html>
