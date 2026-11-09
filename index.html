@@ -26,8 +26,7 @@
   <meta name="robots" content="index, follow">
   <meta name="description" content="Letecká záchranná služba Kryštof 07 na letišti Plzeň–Líně. Armáda České republiky, vrtulník W-3A Sokol, provoz 24/7.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚁</text></svg>">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600&family=Barlow+Condensed:wght@300;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="fonts.css">
 <style>
 :root {
   --red: #D42B2B;
@@ -593,8 +592,29 @@ nav.solid{background:rgba(13,14,16,.94);padding-top:.7rem;padding-bottom:.7rem;b
 .hamburger{min-width:44px;min-height:44px;justify-content:center;}
 </style>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css"/>
+<script src="vendor/leaflet/leaflet.js"></script>
+<script>
+// Mapové dlaždice (CARTO) se stáhnou až po kliknutí – do té doby se nic nenačítá od třetí strany.
+function lzsTilesOnClick(map, id) {
+  var box = document.getElementById(id);
+  if (!box) return;
+  box.style.position = "relative";
+  var b = document.createElement("button");
+  b.type = "button";
+  b.textContent = "Zobrazit mapu";
+  b.setAttribute("style", "position:absolute;z-index:1000;left:50%;top:50%;transform:translate(-50%,-50%);background:#D42B2B;color:#fff;border:0;padding:12px 22px;font:600 14px Barlow,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;");
+  var note = document.createElement("div");
+  note.textContent = "Po kliknutí se podkladová mapa načte ze serveru CARTO (poskytovatel obdrží vaši IP adresu).";
+  note.setAttribute("style", "position:absolute;z-index:1000;left:0;right:0;bottom:8px;text-align:center;color:rgba(255,255,255,.6);font:12px Barlow,sans-serif;padding:0 12px;");
+  b.addEventListener("click", function () {
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=cb1_400n_1_201715b5914ba5f02c9d4c03", { maxZoom: 12 }).addTo(map);
+    b.remove(); note.remove();
+  });
+  box.appendChild(b); box.appendChild(note);
+}
+</script>
+
 <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "3faf4096b4f049e5bca019a6c42c4ef7"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <body>
@@ -1070,6 +1090,7 @@ e(s.colorDepth)+'" width="88" height="60" border="0" alt="TOPlist" />';
 </script></a></div>
   <div class="fl">© 2026 lzs-line.cz · Neoficiální informační web o stanici Kryštof 07 · Created by <a href="https://www.pckucera.cz" target="_blank" style="color:rgba(255,255,255,0.3);text-decoration:none;">pckucera.cz</a></div>
   <div class="fr">Plzeň–Líně · LKLN · AČR · W-3A Sokol</div>
+  <div class="fl"><a href="ochrana-osobnich-udaju.html" style="color:rgba(255,255,255,0.3);text-decoration:none;">Ochrana osobních údajů</a></div>
 </footer>
 
 <script>
@@ -1094,9 +1115,7 @@ window.addEventListener("load", function() {
     dragging: true
   });
 
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=cb1_400n_1_201715b5914ba5f02c9d4c03", {
-    maxZoom: 12
-  }).addTo(map);
+  lzsTilesOnClick(map, "lzsmap");
 
   // 70km radius
   L.circle([49.6753, 13.2753], {
@@ -1455,9 +1474,7 @@ window.addEventListener("load", function() {
     attributionControl: false
   });
 
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=cb1_400n_1_201715b5914ba5f02c9d4c03", {
-    maxZoom: 12
-  }).addTo(mapCR);
+  lzsTilesOnClick(mapCR, "lzs-map-cr");
 
   var stations = [
     { name: "Kryštof 01", city: "Praha – Ruzyně", lat: 50.1008, lon: 14.2600, army: false, provoz: "24/7", operator: "POLICIE ČR", nvg: true, vrtulnik: "EC 135" },
