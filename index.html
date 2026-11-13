@@ -584,6 +584,7 @@ nav.solid{background:rgba(13,14,16,.94);padding-top:.7rem;padding-bottom:.7rem;b
 .ready-txt{display:flex;flex-direction:column;flex:1;min-width:0;}
 .ready-txt b{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.15rem;letter-spacing:.06em;color:var(--white);text-transform:uppercase;}
 .ready-txt span,.ready-time span{font-size:.9rem;color:var(--gray2);}
+.ready-note{max-width:34rem;margin-top:.7rem;font-size:.8rem;line-height:1.5;color:var(--gray2);}
 .ready-time{display:flex;flex-direction:column;align-items:flex-end;}
 .ready-time b{font-family:'Bebas Neue',sans-serif;font-size:2rem;line-height:1;letter-spacing:.06em;font-variant-numeric:tabular-nums;color:var(--white);}
 @media(max-width:600px){.ready{flex-wrap:wrap;}.ready-time{align-items:flex-start;}.hero-photo-cap{right:1rem !important;bottom:5rem !important;}}
@@ -681,6 +682,7 @@ function toggleMenu() {
       <div class="ready-txt"><b>Stanice je v pohotovosti</b><span id="rdyMode">Vzlet do 3 minut ve dne, do 10 minut v noci</span></div>
       <div class="ready-time"><b id="rdyClock">--:--:--</b><span>místní čas Plzeň–Líně</span></div>
     </div>
+    <p class="ready-note">Informativní hlášení podle denní doby – skutečná pohotovost a čas vzletu se mohou lišit.</p>
   </div>
   <div class="hero-photo-cap" style="position:absolute;bottom:1.5rem;right:1.5rem;z-index:2;">W-3A Sokol ev. č. 0719 · Czech Air Force · LZS Kryštof 07</div>
 </div>
@@ -744,6 +746,7 @@ function toggleMenu() {
           <tr><td>Akční rádius</td><td>~70 km / ~18 min</td></tr>
           <tr><td>Noční / IFR lety</td><td><span class="hi">Ano – plná způsobilost</span></td></tr>
         </table>
+        <p style="font-size:.8rem;line-height:1.5;color:var(--gray);margin-top:1rem;">Údaje o pohotovosti a časech vzletu jsou informativní, vycházejí z veřejně dostupných zdrojů a skutečný provoz se může lišit (např. podle počasí, technického stavu nebo vytížení).</p>
       </div>
     </div>
   </div>
@@ -920,6 +923,7 @@ function toggleMenu() {
       </div>
     </div>
   </div>
+  <p style="font-size:.8rem;line-height:1.5;color:var(--gray);margin-top:1rem;">Živý provoz z ADS-B (adsb.lol, OpenSky) je orientační a bez záruky úplnosti – vojenské stroje se nemusí zobrazit.</p>
 </div>
 </div>
 
@@ -1088,7 +1092,7 @@ e(d.referrer)+'&t='+e(d.title)+'&l='+e(d.URL)+'&wi='+e(s.width)+'&he='+e(s.heigh
 e(s.colorDepth)+'" width="88" height="60" border="0" alt="TOPlist" />';
 }(document,encodeURIComponent,window.screen))
 </script></a></div>
-  <div class="fl">© 2026 lzs-line.cz · Neoficiální informační web o stanici Kryštof 07 · Created by <a href="https://www.pckucera.cz" target="_blank" style="color:rgba(255,255,255,0.3);text-decoration:none;">pckucera.cz</a></div>
+  <div class="fl">© 2026 lzs-line.cz · Neoficiální informační web o stanici Kryštof 07 – není provozován Armádou ČR ani ZZS, údaje jsou orientační · V nouzi volejte 155 / 112 · Created by <a href="https://www.pckucera.cz" target="_blank" style="color:rgba(255,255,255,0.3);text-decoration:none;">pckucera.cz</a></div>
   <div class="fr">Plzeň–Líně · LKLN · AČR · W-3A Sokol</div>
   <div class="fl"><a href="ochrana-osobnich-udaju.html" style="color:rgba(255,255,255,0.3);text-decoration:none;">Ochrana osobních údajů</a></div>
 </footer>
